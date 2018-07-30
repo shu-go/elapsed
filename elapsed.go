@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type timer struct {
+type Timer struct {
 	start time.Time
 
 	recordsM sync.Mutex
@@ -19,30 +19,30 @@ type TimeRecord struct {
 	Split time.Duration
 }
 
-func Start() timer {
-	return timer{
+func Start() Timer {
+	return Timer{
 		start:   time.Now(),
 		records: nil,
 	}
 }
 
-func (t timer) String() string {
+func (t Timer) String() string {
 	return t.Elapsed().String()
 }
 
-func (t timer) Elapsed() time.Duration {
+func (t Timer) Elapsed() time.Duration {
 	return time.Since(t.start)
 }
 
-func (t timer) ElapsedMilliseconds() int64 {
+func (t Timer) ElapsedMilliseconds() int64 {
 	return time.Since(t.start).Nanoseconds() / int64(time.Millisecond)
 }
 
-func (t *timer) Reset() {
+func (t *Timer) Reset() {
 	t.start = time.Now()
 }
 
-func (t *timer) Record(title string) {
+func (t *Timer) Record(title string) {
 	now := time.Now()
 	start := t.start
 
@@ -63,7 +63,7 @@ func (t *timer) Record(title string) {
 	}(now, lap, split)
 }
 
-func (t timer) Records() []TimeRecord {
+func (t Timer) Records() []TimeRecord {
 	t.recordsM.Lock()
 	records := t.records
 	t.recordsM.Unlock()
