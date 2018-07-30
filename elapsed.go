@@ -6,10 +6,9 @@ import (
 )
 
 type Timer struct {
-	start time.Time
-
-	recordsM sync.Mutex
-	records  []TimeRecord
+	m       sync.Mutex
+	start   time.Time
+	records []TimeRecord
 }
 
 type TimeRecord struct {
@@ -26,27 +25,39 @@ func Start() Timer {
 	}
 }
 
-func (t Timer) String() string {
+func (t *Timer) String() string {
 	return t.Elapsed().String()
 }
 
-func (t Timer) Elapsed() time.Duration {
-	return time.Since(t.start)
+func (t *Timer) Elapsed() time.Duration {
+	t.m.Lock()
+	since := time.Since(t.start)
+	t.m.Unlock()
+	return since
 }
 
-func (t Timer) ElapsedMilliseconds() int64 {
-	return time.Since(t.start).Nanoseconds() / int64(time.Millisecond)
+func (t *Timer) ElapsedMilliseconds() int64 {
+	t.m.Lock()
+	since := time.Since(t.start).Nanoseconds() / int64(time.Millisecond)
+	t.m.Unlock()
+	return since
 }
 
 func (t *Timer) Reset() {
-	t.start = time.Now()
+	now := time.Now()
+
+	t.m.Lock()
+	t.start = now
+	t.records = nil
+	t.m.Unlock()
 }
 
 func (t *Timer) Record(title string) {
 	now := time.Now()
-	start := t.start
 
-	t.recordsM.Lock()
+	t.m.Lock()
+
+	start := t.start
 	if len(t.records) > 0 {
 		start = t.records[len(t.records)-1].Now
 	}
@@ -59,14 +70,14 @@ func (t *Timer) Record(title string) {
 			Lap:   lap,
 			Split: split,
 		})
-		t.recordsM.Unlock()
+		t.m.Unlock()
 	}(now, lap, split)
 }
 
-func (t Timer) Records() []TimeRecord {
-	t.recordsM.Lock()
+func (t *Timer) Records() []TimeRecord {
+	t.m.Lock()
 	records := t.records
-	t.recordsM.Unlock()
+	t.m.Unlock()
 
 	return records
 }
