@@ -61,17 +61,14 @@ func (t *Timer) Record(title string) {
 	if len(t.records) > 0 {
 		start = t.records[len(t.records)-1].Now
 	}
-	lap := now.Sub(start)
-	split := now.Sub(t.start)
-	go func(now time.Time, lap, split time.Duration) {
-		t.records = append(t.records, TimeRecord{
-			Title: title,
-			Now:   now,
-			Lap:   lap,
-			Split: split,
-		})
-		t.m.Unlock()
-	}(now, lap, split)
+
+	t.records = append(t.records, TimeRecord{
+		Title: title,
+		Now:   now,
+		Lap:   now.Sub(start),
+		Split: now.Sub(t.start),
+	})
+	t.m.Unlock()
 }
 
 func (t *Timer) Records() []TimeRecord {
