@@ -49,3 +49,19 @@ func TestRecords(t *testing.T) {
 	gotwant.TestExpr(t, records[2].Split, records[2].Split >= 40*time.Millisecond)
 	gotwant.TestExpr(t, records[2].Split, records[2].Split < 60*time.Millisecond)
 }
+
+func BenchmarkElapsed(b *testing.B) {
+	timer := elapsed.Start()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		timer.Elapsed()
+	}
+}
+
+func BenchmarkRecord(b *testing.B) {
+	timer := elapsed.Start()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		timer.Record("a")
+	}
+}
