@@ -5,19 +5,27 @@ import (
 	"time"
 )
 
+// Timer has start-time and lap/split data.
 type Timer struct {
 	m       sync.Mutex
 	start   time.Time
 	records []TimeRecord
 }
 
+// TimeRecord is a snapshot in time.
 type TimeRecord struct {
+	// Title is for human or logging.
 	Title string
-	Now   time.Time
-	Lap   time.Duration
+	// Now is the time when the TimeRecord is created.
+	Now time.Time
+	// Lap is a duration of (Now - max(Timer.Start, prev TimeRecord))
+	Lap time.Duration
+	// Split is a duration of (Now - Timer.Start)
 	Split time.Duration
 }
 
+// Start returns started Timer.
+// It never STOP. To take the end of timeline, call Elapased() or Record().
 func Start() Timer {
 	return Timer{
 		start:   time.Now(),
@@ -25,10 +33,13 @@ func Start() Timer {
 	}
 }
 
+// String returns string expression of Elapsed().
+// You can call timer.Elapsed().String().
 func (t *Timer) String() string {
 	return t.Elapsed().String()
 }
 
+// Elapsed returns a duration of (now - start).
 func (t *Timer) Elapsed() time.Duration {
 	t.m.Lock()
 	since := time.Since(t.start)
@@ -36,6 +47,7 @@ func (t *Timer) Elapsed() time.Duration {
 	return since
 }
 
+// ElapsedMilliseconds returns a duration of (now - start) in millisecond as int64.
 func (t *Timer) ElapsedMilliseconds() int64 {
 	t.m.Lock()
 	since := time.Since(t.start).Nanoseconds() / int64(time.Millisecond)
@@ -43,6 +55,7 @@ func (t *Timer) ElapsedMilliseconds() int64 {
 	return since
 }
 
+// Reset resets timer's start-time and clears records.
 func (t *Timer) Reset() {
 	now := time.Now()
 
@@ -52,6 +65,7 @@ func (t *Timer) Reset() {
 	t.m.Unlock()
 }
 
+// Record appends a snapshot.
 func (t *Timer) Record(title string) {
 	now := time.Now()
 
@@ -71,6 +85,7 @@ func (t *Timer) Record(title string) {
 	t.m.Unlock()
 }
 
+// Records returns already-taken snapshots.
 func (t *Timer) Records() []TimeRecord {
 	t.m.Lock()
 	records := t.records
