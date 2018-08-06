@@ -10,19 +10,7 @@ import (
 type Timer struct {
 	m       sync.Mutex
 	start   time.Time
-	records []TimeRecord
-}
-
-// TimeRecord is a snapshot in time.
-type TimeRecord struct {
-	// Title is for human or logging.
-	Title string
-	// Now is the time when the TimeRecord is created.
-	Now time.Time
-	// Lap is a duration of (Now - max(Timer.Start, prev TimeRecord))
-	Lap time.Duration
-	// Split is a duration of (Now - Timer.Start)
-	Split time.Duration
+	records TimeRecords
 }
 
 // Start returns started Timer.
@@ -87,11 +75,12 @@ func (t *Timer) Record(title string) {
 		Lap:   now.Sub(start),
 		Split: now.Sub(t.start),
 	})
+
 	t.m.Unlock()
 }
 
 // Records returns already-taken snapshots.
-func (t *Timer) Records() []TimeRecord {
+func (t *Timer) Records() TimeRecords {
 	t.m.Lock()
 	records := t.records
 	t.m.Unlock()
