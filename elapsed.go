@@ -1,3 +1,4 @@
+// Package elapsed provides measurement functions.
 package elapsed
 
 import (
