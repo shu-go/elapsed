@@ -42,16 +42,20 @@ func (t *Timer) String() string {
 
 // Elapsed returns a duration of (now - start).
 func (t *Timer) Elapsed() time.Duration {
+	now := time.Now()
+
 	t.m.Lock()
-	since := time.Since(t.start)
+	since := now.Sub(t.start)
 	t.m.Unlock()
 	return since
 }
 
 // ElapsedMilliseconds returns a duration of (now - start) in millisecond as int64.
 func (t *Timer) ElapsedMilliseconds() int64 {
+	now := time.Now()
+
 	t.m.Lock()
-	since := time.Since(t.start).Nanoseconds() / int64(time.Millisecond)
+	since := now.Sub(t.start).Nanoseconds() / int64(time.Millisecond)
 	t.m.Unlock()
 	return since
 }
