@@ -1,6 +1,8 @@
 package elapsed_test
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -28,13 +30,15 @@ func TestRecords(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 	timer.Record("3")
 	time.Sleep(20 * time.Millisecond)
+	timer.Record("1")
+	time.Sleep(20 * time.Millisecond)
 
-	gotwant.TestExpr(t, timer.Elapsed(), timer.Elapsed() >= 60*time.Millisecond)
-	gotwant.TestExpr(t, timer.Elapsed(), timer.Elapsed() < 80*time.Millisecond)
+	gotwant.TestExpr(t, timer.Elapsed(), timer.Elapsed() >= 80*time.Millisecond)
+	gotwant.TestExpr(t, timer.Elapsed(), timer.Elapsed() < 100*time.Millisecond)
 
 	records := timer.Records()
 
-	gotwant.Test(t, len(records), 3)
+	gotwant.Test(t, len(records), 4)
 	gotwant.Test(t, records[0].Title, "1")
 	gotwant.TestExpr(t, records[0].Lap, records[0].Lap < 20*time.Millisecond)
 	gotwant.TestExpr(t, records[0].Split, records[0].Split < 20*time.Millisecond)
@@ -48,6 +52,12 @@ func TestRecords(t *testing.T) {
 	gotwant.TestExpr(t, records[2].Lap, records[2].Lap < 40*time.Millisecond)
 	gotwant.TestExpr(t, records[2].Split, records[2].Split >= 40*time.Millisecond)
 	gotwant.TestExpr(t, records[2].Split, records[2].Split < 60*time.Millisecond)
+
+	summary := records.Summary()
+	gotwant.TestExpr(t, summary.Get("1"), 20*time.Millisecond < summary.Get("1"))
+	gotwant.TestExpr(t, summary.Get("1"), summary.Get("1") < 40*time.Millisecond)
+
+	fmt.Fprintf(os.Stderr, "%v\n", summary)
 }
 
 func BenchmarkElapsed(b *testing.B) {
