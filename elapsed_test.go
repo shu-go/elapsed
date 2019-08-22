@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/shu_go/elapsed"
-	"bitbucket.org/shu_go/gotwant"
+	"github.com/shu-go/elapsed"
+	"github.com/shu-go/gotwant"
 )
 
 func TestSimpleUsage(t *testing.T) {
