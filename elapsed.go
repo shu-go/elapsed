@@ -43,7 +43,7 @@ func (t *Timer) ElapsedMilliseconds() int64 {
 	now := time.Now()
 
 	t.m.Lock()
-	since := now.Sub(t.start).Nanoseconds() / int64(time.Millisecond)
+	since := now.Sub(t.start).Milliseconds()
 	t.m.Unlock()
 	return since
 }
